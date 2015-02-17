@@ -21,10 +21,8 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-import com.nijikokun.register.payment.Method;
-
 @SuppressWarnings("deprecation")
-public class VaultEco implements Method {
+public class VaultEco {
 
     private Vault vault;
     private Economy economy;
@@ -34,8 +32,7 @@ public class VaultEco implements Method {
     }
 
 
-	@Override
-    public boolean createAccount(String name, Double amount) {
+	public boolean createAccount(String name, Double amount) {
         if(!this.economy.createBank(name, "").transactionSuccess()) {
             return false;
         }
@@ -78,22 +75,6 @@ public class VaultEco implements Method {
         return this.economy.createPlayerAccount(name);
     }
 
-    public MethodAccount getAccount(String name) {
-        if(!hasAccount(name)) {
-            return null;
-        }
-
-        return new VaultAccount(name, this.economy);
-    }
-
-    public MethodBankAccount getBankAccount(String bank, String name) {
-        if(!hasBankAccount(bank, name)) {
-            return null;
-        }
-
-        return new VaultBankAccount(bank, economy);
-    }
-
     public boolean isCompatible(Plugin plugin) {
         return plugin instanceof Vault;
     }
@@ -105,37 +86,27 @@ public class VaultEco implements Method {
             this.economy = economyProvider.getProvider();
         }
     }
-
-    public class VaultAccount implements MethodAccount {
-        private final String name;
-        private final Economy economy;
-
-        public VaultAccount(String name, Economy economy) {
-            this.name = name;
-            this.economy = economy;
-        }
-
         public double balance() {
-            return this.economy.getBalance(this.name);
+            return this.economy.getBalance(this.getName());
         }
 
         public boolean set(double amount) {
-            if(!this.economy.withdrawPlayer(this.name, this.balance()).transactionSuccess()) {
+            if(!this.economy.withdrawPlayer(getName(), this.balance()).transactionSuccess()) {
                 return false;
             }
 
             if(amount == 0) {
                 return true;
             }
-            return this.economy.depositPlayer(this.name, amount).transactionSuccess();
+            return this.economy.depositPlayer(getName(), amount).transactionSuccess();
         }
 
         public boolean add(double amount) {
-            return this.economy.depositPlayer(this.name, amount).transactionSuccess();
+            return this.economy.depositPlayer(getName(), amount).transactionSuccess();
         }
 
         public boolean subtract(double amount) {
-            return this.economy.withdrawPlayer(this.name, amount).transactionSuccess();
+            return this.economy.withdrawPlayer(getName(), amount).transactionSuccess();
         }
 
         public boolean multiply(double amount) {
@@ -168,76 +139,3 @@ public class VaultEco implements Method {
             return this.set(0.0);
         }
     }
-
-    public class VaultBankAccount implements MethodBankAccount {
-
-        private final String bank;
-        private final Economy economy;
-
-        public VaultBankAccount(String bank, Economy economy) {
-            this.bank = bank;
-            this.economy = economy;
-        }
-
-        public String getBankName() {
-            return this.bank;
-        }
-
-        public int getBankId() {
-            return -1;
-        }
-
-        public double balance() {
-            return this.economy.bankBalance(this.bank).balance;
-        }
-
-        public boolean set(double amount) {
-            if(!this.economy.bankWithdraw(this.bank, this.balance()).transactionSuccess()) {
-                return false;
-            }
-            if(amount == 0) {
-                return true;
-            }
-            return this.economy.bankDeposit(this.bank, amount).transactionSuccess();
-        }
-
-        public boolean add(double amount) {
-            return this.economy.bankDeposit(this.bank, amount).transactionSuccess();
-        }
-
-        public boolean subtract(double amount) {
-            return this.economy.bankWithdraw(this.bank, amount).transactionSuccess();
-        }
-
-        public boolean multiply(double amount) {
-            double balance = this.balance();
-            return this.set(balance * amount);
-        }
-
-        public boolean divide(double amount) {
-            double balance = this.balance();
-            return this.set(balance / amount);
-        }
-
-        public boolean hasEnough(double amount) {
-            return (this.balance() >= amount);
-        }
-
-        public boolean hasOver(double amount) {
-            return (this.balance() > amount);
-        }
-
-        public boolean hasUnder(double amount) {
-            return (this.balance() < amount);
-        }
-
-        public boolean isNegative() {
-            return (this.balance() < 0);
-        }
-
-        public boolean remove() {
-            return this.set(0.0);
-        }
-
-    }
-}
