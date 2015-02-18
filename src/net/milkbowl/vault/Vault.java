@@ -49,8 +49,6 @@ public class Vault extends JavaPlugin {
         loadEconomy();
         loadPermission();
         loadChat();
-        // Schedule to check the version every 30 minutes for an update. This is to update the most recent 
-        // version so if an admin reconnects they will be warned about newer versions.
     }
 
     /**
