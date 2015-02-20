@@ -2,13 +2,10 @@ package net.milkbowl.vault.permission.plugins;
 
 import java.util.List;
 import java.util.logging.Logger;
-
 import net.milkbowl.vault.permission.Permission;
-
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
-import org.bukkit.craftbukkit.libs.jline.internal.Log;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,7 +15,6 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
-
 import ru.tehkode.permissions.PermissionGroup;
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
@@ -27,8 +23,8 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
 public class Permission_PermissionsEx
   extends Permission
 {
+  private final String name = "PermissionsEx";
   private PermissionsEx permission = null;
-private Plugin plugin;
   
   public Permission_PermissionsEx(Plugin plugin)
   {
@@ -43,12 +39,12 @@ private Plugin plugin;
         try
         {
           if (Double.valueOf(perms.getDescription().getVersion()).doubleValue() < 1.16D) {
-            Log.info(String.format("[%s][Permission] %s below 1.16 is not compatible with Vault! Falling back to SuperPerms only mode. PLEASE UPDATE!", new Object[] { plugin.getDescription().getName(), "PermissionsEx" }));
+            log.info(String.format("[%s][Permission] %s below 1.16 is not compatible with Vault! Falling back to SuperPerms only mode. PLEASE UPDATE!", new Object[] { plugin.getDescription().getName(), "PermissionsEx" }));
           }
         }
         catch (NumberFormatException e) {}
         this.permission = ((PermissionsEx)perms);
-        Log.info(String.format("[%s][Permission] %s hooked.", new Object[] { plugin.getDescription().getName(), "PermissionsEx" }));
+        log.info(String.format("[%s][Permission] %s hooked.", new Object[] { plugin.getDescription().getName(), "PermissionsEx" }));
       }
     }
   }
@@ -83,13 +79,13 @@ private Plugin plugin;
           {
             if (Double.valueOf(perms.getDescription().getVersion()).doubleValue() < 1.16D)
             {
-              Log.info(String.format("[%s][Permission] %s below 1.16 is not compatible with Vault! Falling back to SuperPerms only mode. PLEASE UPDATE!", new Object[] { Permission_PermissionsEx.this.plugin.getDescription().getName(), "PermissionsEx" }));
+              Permission_PermissionsEx.log.info(String.format("[%s][Permission] %s below 1.16 is not compatible with Vault! Falling back to SuperPerms only mode. PLEASE UPDATE!", new Object[] { Permission_PermissionsEx.this.plugin.getDescription().getName(), "PermissionsEx" }));
               return;
             }
           }
           catch (NumberFormatException e) {}
           this.permission.permission = ((PermissionsEx)perms);
-          Log.info(String.format("[%s][Permission] %s hooked.", new Object[] { Permission_PermissionsEx.this.plugin.getDescription().getName(), "PermissionsEx" }));
+          Permission_PermissionsEx.log.info(String.format("[%s][Permission] %s hooked.", new Object[] { Permission_PermissionsEx.this.plugin.getDescription().getName(), "PermissionsEx" }));
         }
       }
     }
@@ -101,7 +97,7 @@ private Plugin plugin;
         (event.getPlugin().getDescription().getName().equals("PermissionsEx")))
       {
         this.permission.permission = null;
-        Log.info(String.format("[%s][Permission] %s un-hooked.", new Object[] { Permission_PermissionsEx.this.plugin.getDescription().getName(), "PermissionsEx" }));
+        Permission_PermissionsEx.log.info(String.format("[%s][Permission] %s un-hooked.", new Object[] { Permission_PermissionsEx.this.plugin.getDescription().getName(), "PermissionsEx" }));
       }
     }
   }
@@ -315,6 +311,11 @@ private Plugin plugin;
     return false;
   }
   
+  public boolean playerAddTransient(String player, String permission)
+  {
+    return playerAddTransient(null, player, permission);
+  }
+  
   public boolean playerAddTransient(Player player, String permission)
   {
     return playerAddTransient(null, player, permission);
@@ -345,6 +346,11 @@ private Plugin plugin;
       return true;
     }
     return false;
+  }
+  
+  public boolean playerRemoveTransient(String player, String permission)
+  {
+    return playerRemoveTransient(null, player, permission);
   }
   
   public String[] getGroups()
